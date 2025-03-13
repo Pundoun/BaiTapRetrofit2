@@ -7,49 +7,56 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RetrofitActivity extends AppCompatActivity {
-    RecyclerView rcCate;
-    CategoryAdapter categoryAdapter;
-    APIService apiService;
-    List<Category> categoryList;
+    private RecyclerView rcCate;
+    private CategoryAdapter categoryAdapter;
+    private APIService apiService;
+    private List<Category> categoryList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        AnhXa();
-        GetCategory(); // Gọi API lấy dữ liệu
+
+        // Ánh xạ RecyclerView
+        rcCate = findViewById(R.id.rc_category);
+
+        // Khởi tạo danh sách trống
+        categoryList = new ArrayList<>();
+
+        // Tạo Adapter một lần
+        categoryAdapter = new CategoryAdapter(this, categoryList);
+        rcCate.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rcCate.setAdapter(categoryAdapter);
+
+        // Gọi API để lấy dữ liệu
+        GetCategory();
     }
 
-    private void AnhXa() {
-        rcCate = findViewById(R.id.rc_category);
-    }
 
     private void GetCategory() {
-        // Tạo instance của APIService
-        apiService = RetrofitClient.getInstance();
+        apiService = RetrofitClient.getInstance().create(APIService.class);
 
-        // Gọi API
-        apiService.getCategoriesAll().enqueue(new Callback<List<Category>>() {
+        apiService.getCategories().enqueue(new Callback<List<Category>>() {
             @Override
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    categoryList = response.body();
-                    categoryAdapter = new CategoryAdapter(RetrofitActivity.this, categoryList);
-
-                    rcCate.setLayoutManager(new LinearLayoutManager(RetrofitActivity.this));
-                    rcCate.setAdapter(categoryAdapter);
-
-                    categoryAdapter.notifyDataSetChanged();
+                    runOnUiThread(() -> {
+                        categoryList.clear();  // Xóa dữ liệu cũ
+                        categoryList.addAll(response.body());  // Thêm dữ liệu mới
+                        categoryAdapter.notifyDataSetChanged();  // Cập nhật RecyclerView
+                    });
                 } else {
                     Toast.makeText(RetrofitActivity.this, "Lỗi lấy dữ liệu!", Toast.LENGTH_SHORT).show();
                 }
             }
+
 
             @Override
             public void onFailure(Call<List<Category>> call, Throwable t) {

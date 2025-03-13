@@ -2,6 +2,8 @@ package com.example.baitap06;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,36 +13,40 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView rcCate;
-    private CategoryAdapter categoryAdapter;
+    private RecyclerView recyclerView;
+    private CategoryAdapter adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        rcCate = findViewById(R.id.rc_category);
-        GetCategory();
+        recyclerView = findViewById(R.id.rc_category);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        loadCategories();
     }
 
-    private void GetCategory() {
-        RetrofitClient.getInstance().getCategoriesAll().enqueue(new Callback<List<Category>>() {
+    private void loadCategories() {
+        APIService apiService = RetrofitClient.getInstance().create(APIService.class);
+        Call<List<Category>> call = apiService.getCategories();
+
+        call.enqueue(new Callback<List<Category>>() {
             @Override
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Category> categoryList = response.body();
-                    categoryAdapter = new CategoryAdapter(MainActivity.this, categoryList);
-                    rcCate.setHasFixedSize(true);
-                    rcCate.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                    rcCate.setAdapter(categoryAdapter);
+                    List<Category> categories = response.body();
+                    adapter = new CategoryAdapter(MainActivity.this, categories);
+                    recyclerView.setAdapter(adapter);
                 } else {
-                    Log.d("API_ERROR", "Response code: " + response.code());
+                    Toast.makeText(MainActivity.this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Category>> call, Throwable t) {
-                Log.d("API_ERROR", "Failed to fetch data: " + t.getMessage());
+                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage());
+                Toast.makeText(MainActivity.this, "Không thể kết nối API!", Toast.LENGTH_SHORT).show();
             }
         });
     }

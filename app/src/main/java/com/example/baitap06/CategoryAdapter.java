@@ -8,9 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
@@ -33,7 +31,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category category = categoryList.get(position);
         holder.name.setText(category.getName());
-        Glide.with(context).load(category.getImage()).into(holder.image);
+
+        Glide.with(context)
+                .load("http://app.iotstar.vn/appfoods/" + category.getImage()) // Kiểm tra URL
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error_placeholder)
+                .into(holder.image);
     }
 
     @Override
@@ -47,9 +50,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.categoryName); // Đảm bảo ID đúng với XML
+            name = itemView.findViewById(R.id.categoryName);
             image = itemView.findViewById(R.id.categoryImage);
         }
     }
 }
-

@@ -1,13 +1,19 @@
 package com.example.baitap06;
 
-public class RetrofitClient extends BaseClient {
-    private static final String BASE_URL = "http://app.iotstar.vn:8081/appfoods/";
-    private static APIService apiService;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-    public static APIService getInstance() {
-        if (apiService == null) {
-            apiService = createService(APIService.class, BASE_URL);
+public class RetrofitClient {
+    private static Retrofit retrofit;
+    private static final String BASE_URL = "http://app.iotstar.vn:8081/appfoods/";
+
+    public static Retrofit getInstance() {
+        if (retrofit == null) {
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
         }
-        return apiService;
+        return retrofit;
     }
 }
