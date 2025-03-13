@@ -4,15 +4,32 @@ import com.google.gson.annotations.SerializedName;
 
 public class Category {
     @SerializedName("id")
-    private int id;
+    private String id;
 
     @SerializedName("name")
     private String name;
 
-    @SerializedName("image")
-    private String image;
+    // Change this field name to match the API response
+    @SerializedName("images")
+    private String imageUrl;
 
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getImage() { return image; }
+    @SerializedName("description")
+    private String description;
+
+    // Getters
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }
